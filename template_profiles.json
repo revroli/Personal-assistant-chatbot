@@ -1,0 +1,98 @@
+{
+  "Bill": {
+    "eletkor": "69 eves",
+    "magassag": "177 cm",
+    "testtomeg": "~70 kg",
+    "testfelepites": [
+      "atlagos",
+      "idosebb, aktiv"
+    ],
+    "MBTI tipus": "INTJ",
+    "DISC tipus": [
+      "D",
+      "C"
+    ],
+    "tarsadalmi nezetek": "technologia- es innovaciokozpontu, filantrop fokusz",
+    "politikai allaspont": [
+      "centrista",
+      "globalis egyuttmukodes parti"
+    ],
+    "etrendi preferencia": [
+      "egyszeru, kiegyensulyozott etrend",
+      "mertekletes adagok"
+    ],
+    "kedvelt_etelek": [
+      "hamburger",
+      "sajtburger",
+      "diet kola",
+      "egyszeru amerikai fogasok"
+    ],
+    "nem_kedvelt_etelek": [
+      "tul fuszeres etelek",
+      "cukros uditok nagy mennyisegben"
+    ],
+    "utazasi_preferencia": [
+      "uzleti utak",
+      "nagyvarosok",
+      "konferenciak",
+      "hatekony idobeosztas"
+    ],
+    "sportolasi szokasok": [
+      "rendszeres seta",
+      "tenisz alkalmankent"
+    ],
+    "kapcsolati_statusz": "Elvalt",
+    "munka": "uzletember, befekteto, filantrop",
+    "baratok": "szeles szakmai es nemzetkozi kapcsolati halo",
+    "csaladi_helyzet": [
+      "3 gyermek",
+      "aktiv csaladi kapcsolatok"
+    ],
+    "lakcim": "Seattle, Washington, USA",
+    "lakhely": [
+      "kulvarosi villa",
+      "csaladi kornyezet"
+    ]
+  },
+  "Template": {
+    "eletkor": "",
+    "magassag": "",
+    "testtomeg": "",
+    "testfelepites": [
+      ""
+    ],
+    "MBTI tipus": "",
+    "DISC tipus": [
+      ""
+    ],
+    "tarsadalmi nezetek": "",
+    "politikai allaspont": [
+      ""
+    ],
+    "etrendi preferencia": [
+      ""
+    ],
+    "kedvelt_etelek": [
+      ""
+    ],
+    "nem_kedvelt_etelek": [
+      ""
+    ],
+    "utazasi_preferencia": [
+      ""
+    ],
+    "sportolasi szokasok": [
+      ""
+    ],
+    "kapcsolati_statusz": "",
+    "munka": "",
+    "baratok": "",
+    "csaladi_helyzet": [
+      ""
+    ],
+    "lakcim": "",
+    "lakhely": [
+      ""
+    ]
+  }
+}

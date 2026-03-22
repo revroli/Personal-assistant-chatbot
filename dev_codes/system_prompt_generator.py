@@ -1,14 +1,18 @@
 import json
 
-def generate_system_prompt(profile, alap_talalatok, talalatok):
-    # Csak az első 5 találat kulcsai alapján szűrjük a profilt.
-    top_keys = [doc.page_content for doc in alap_talalatok[:talalatok]]
-    filtered_profile = {k: profile[k] for k in top_keys if k in profile}
-
+def generate_system_prompt(profile, alap_talalatok = None, talalatok = 5):
+    
+    if alap_talalatok is None:
+        prompted_profile = profile
+    else:
+        # Csak az első 5 találat kulcsai alapján szűrjük a profilt.
+        top_keys = [doc.page_content for doc in alap_talalatok[:talalatok]]
+        prompted_profile = {k: profile[k] for k in top_keys if k in profile}
+        
     # A JSON formátum segít a modellnek az adatok hierarchiájának megértésében
-    profile_json = json.dumps(filtered_profile, indent=2, ensure_ascii=False)
+    profile_json = json.dumps(prompted_profile, indent=2, ensure_ascii=False)
 
-    print(profile_json)
+    #print(profile_json)
     prompt = f"""
     Te egy személyre szabott életviteli tanácsadó AI vagy. A feladatod, hogy tanácsokat adj a felhasználónak az alábbi profilja alapján. 
     Válaszaidban kerüld az egészségre káros dolgok (pl. öngyilkosság, cigarette, stb.) ajánlását, mégha ez a felhasználó profiljához illene is. 

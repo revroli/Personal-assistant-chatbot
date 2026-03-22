@@ -1,5 +1,6 @@
 .venv
 .env
 __pycache__
-gyakorlo.ipynb
-roli.py
+dev_codes/gyakorlo.ipynb
+dev_codes/roli.py
+user_profiles.json
