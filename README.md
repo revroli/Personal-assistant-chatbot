@@ -122,3 +122,7 @@ pip install -r requirements.txt
 Set-Content -Path .env -Value 'GEMINI_API_KEY="IDE_A_SAJAT_KULCSOD"'
 python cli_chatbot.py
 ```
+
+## Kódgeneráció
+
+A projekt elkészítése során kódgenerálásra a **GPT-5.3-Codex** modell került felhasználásra.
