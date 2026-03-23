@@ -1,8 +1,13 @@
 import json
 import os
+import logging
 from pathlib import Path
 from copy import deepcopy
 from typing import Literal
+
+# Environment beállítások a verbose output letiltásához
+os.environ['HF_HUB_DISABLE_PROGRESS_BARS'] = '1'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from google import genai
 from google.genai import types
@@ -10,6 +15,13 @@ from google.genai import types
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from sentence_transformers import CrossEncoder
+
+# Logging szintek csökkentése a külső függőségek verbose kimenetének letiltásához
+logging.getLogger('transformers').setLevel(logging.ERROR)
+logging.getLogger('sentence_transformers').setLevel(logging.ERROR)
+logging.getLogger('chromadb').setLevel(logging.ERROR)
+logging.getLogger('langchain').setLevel(logging.ERROR)
+logging.getLogger('huggingface_hub').setLevel(logging.ERROR)
 
 # RAG profiladatok
 PROFILE_FIELDS = [
