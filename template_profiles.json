@@ -65,7 +65,7 @@
     "DISC tipus": [
       ""
     ],
-    "tarsadalmi nezetek": "",
+    "tarsadalmi nezetek": [""],
     "politikai allaspont": [
       ""
     ],
@@ -85,8 +85,8 @@
       ""
     ],
     "kapcsolati_statusz": "",
-    "munka": "",
-    "baratok": "",
+    "munka": [""],
+    "baratok": [""],
     "csaladi_helyzet": [
       ""
     ],
