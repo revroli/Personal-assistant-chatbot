@@ -7,15 +7,74 @@ from typing import Literal
 from google import genai
 from google.genai import types
 
-import json
+from langchain_community.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+from sentence_transformers import CrossEncoder
+
+# RAG profiladatok
+PROFILE_FIELDS = [
+    "eletkor",
+    "magassag",
+    "testtomeg",
+    "testfelepites",
+    "MBTI tipus",
+    "DISC tipus",
+    "tarsadalmi nezetek",
+    "politikai allaspont",
+    "etrendi preferencia",
+    "kedvelt_etelek",
+    "nem_kedvelt_etelek",
+    "utazasi_preferencia",
+    "sportolasi szokasok",
+    "kapcsolati_statusz",
+    "munka",
+    "baratok",
+    "csaladi_helyzet",
+    "lakcim",
+    "lakhely",
+]
+
+PROFILE_FIELD_DESCRIPTIONS = [
+    "Kategória: eletkor. Jelentés: a felhasználó életkora vagy korcsoportja. Használat: élethelyzet, napi rutin, energia- és terhelhetőségi javaslatok finomhangolása.",
+    "Kategória: magassag. Jelentés: testmagasságra vonatkozó alapadat. Használat: fizikai aktivitás, ergonómia, felszerelés- és méretválasztás kontextusa.",
+    "Kategória: testtomeg. Jelentés: testsúlyra vonatkozó adat vagy tartomány. Használat: terhelési, mozgás- és életmód-ajánlások személyre szabásának egyik bemenete.",
+    "Kategória: testfelepites. Jelentés: általános testalkat és fizikai alkatleírás. Használat: mozgásforma, edzéstípus és terhelés jellegének megválasztása.",
+    "Kategória: MBTI tipus. Jelentés: személyiségdimenziókat leíró önjellemző kategória. Használat: kommunikációs stílus és tanácsadás hangnemének igazítása.",
+    "Kategória: DISC tipus. Jelentés: viselkedési és kommunikációs preferenciákat jelző profil. Használat: konfliktuskezelés, visszajelzés és együttműködési ajánlások testreszabása.",
+    "Kategória: tarsadalmi nezetek. Jelentés: társadalmi kérdésekhez kapcsolódó értékpreferenciák. Használat: közéleti vagy értékalapú témákban érzékeny, konzisztens válaszadás.",
+    "Kategória: politikai allaspont. Jelentés: politikai orientáció vagy világnézeti beállítódás. Használat: közéleti kontextusban neutrális, de preferenciát tiszteletben tartó megfogalmazás.",
+    "Kategória: etrendi preferencia. Jelentés: étkezési elvek, korlátozások és szokások összessége. Használat: recept- és ételajánlások szűrése, kompatibilis opciók előnyben részesítése.",
+    "Kategória: kedvelt_etelek. Jelentés: preferált alapanyagok, fogások és ízvilágok. Használat: gyorsan elfogadható, motiváló ételötletek ajánlása.",
+    "Kategória: nem_kedvelt_etelek. Jelentés: kerülendő ételek, italok vagy összetevők listája. Használat: kizárási szabályok alkalmazása javaslatgeneráláskor.",
+    "Kategória: utazasi_preferencia. Jelentés: utazási stílus, célterület és költségkeret preferenciák. Használat: úticél- és időzítésajánlások személyre szabása.",
+    "Kategória: sportolasi szokasok. Jelentés: mozgásgyakoriság, aktivitástípus és sportos rutin. Használat: fenntartható edzés- és regenerációs javaslatok kialakítása.",
+    "Kategória: kapcsolati_statusz. Jelentés: aktuális párkapcsolati helyzet leírása. Használat: érzelmi, kommunikációs és élethelyzeti tanácsok kontextusba helyezése.",
+    "Kategória: munka. Jelentés: tanulmányi vagy szakmai státusz és terhelési környezet. Használat: időgazdálkodási, produktivitási és stresszkezelési ajánlásokhoz.",
+    "Kategória: baratok. Jelentés: társas kapcsolati háló erőssége és elérhetősége. Használat: közösségi támogatásra építő javaslatok vagy visszakérdezés szükségességének jelzése.",
+    "Kategória: csaladi_helyzet. Jelentés: családszerkezet és családi kapcsolati dinamika. Használat: érzékeny, családi kontextushoz illesztett tanácsadás.",
+    "Kategória: lakcim. Jelentés: földrajzi elhelyezkedésre utaló információ. Használat: helyhez kötött opciók, szolgáltatások vagy logisztikai javaslatok szűrése.",
+    "Kategória: lakhely. Jelentés: lakhatási környezet típusa és együttélési feltételek. Használat: napi rutinra, térhasználatra és életmódra szabott ajánlások.",
+]
+
+
+def setup_rag() -> tuple:
+    """Initialize RAG components: embeddings, reranker, and vector database."""
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    reranker = CrossEncoder('BAAI/bge-reranker-v2-m3')
+    
+    metadatas = [{"orig_word": PROFILE_FIELDS[i]} for i in range(len(PROFILE_FIELD_DESCRIPTIONS))]
+    vector_db = Chroma.from_texts(PROFILE_FIELD_DESCRIPTIONS, embeddings, metadatas=metadatas)
+    
+    return embeddings, reranker, vector_db
+
 
 def generate_system_prompt(profile, alap_talalatok = None, talalatok = 5):
     
     if alap_talalatok is None:
         prompted_profile = profile
     else:
-        # Csak az első 5 találat kulcsai alapján szűrjük a profilt.
-        top_keys = [doc.page_content for doc in alap_talalatok[:talalatok]]
+        # Az első talalatok számú találat metadatájából nyerjük ki az eredeti mezőneveket
+        top_keys = [doc.metadata['orig_word'] for doc in alap_talalatok[:talalatok]]
         prompted_profile = {k: profile[k] for k in top_keys if k in profile}
         
     # A JSON formátum segít a modellnek az adatok hierarchiájának megértésében
@@ -291,7 +350,7 @@ def format_history(history: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def chat_loop(client: genai.Client, profile: dict) -> None:
+def chat_loop(client: genai.Client, profile: dict, use_rag: bool = False, vector_db = None) -> None:
     history: list[dict] = []
 
     print("\nChat indul. Kilépés: /exit vagy /quit")
@@ -312,11 +371,16 @@ def chat_loop(client: genai.Client, profile: dict) -> None:
             f"A felhasználó legutóbbi üzenete: {user_input}"
         )
 
+        # RAG módban releváns profil mezők szűrése
+        alap_talalatok = None
+        if use_rag and vector_db is not None:
+            alap_talalatok = vector_db.similarity_search(user_input, k=10)
+
         stream = client.models.generate_content_stream(
             model=MODEL_NAME,
             contents=contents,
             config=types.GenerateContentConfig(
-                system_instruction=generate_system_prompt(profile),
+                system_instruction=generate_system_prompt(profile, alap_talalatok, talalatok=5),
                 thinking_config=types.ThinkingConfig(thinking_level="minimal"),
             ),
         )
@@ -349,8 +413,23 @@ def main() -> None:
         edit_profile(profile_name, source, bill_profiles, user_profiles)
 
     profile = _get_profile(profile_name, source, bill_profiles, user_profiles)
+    
+    # RAG mód választása
+    use_rag = prompt_yes_no("\nRAG módot szeretnél használni? (Relevánciafilteres profil)")
+    vector_db = None
+    
+    if use_rag:
+        print("RAG komponensek inicializálása...")
+        try:
+            _, _, vector_db = setup_rag()
+            print("RAG rendszer sikeresen inicializálva.")
+        except Exception as e:
+            print(f"Hiba az RAG inicializálásában: {e}")
+            print("RAG mód kikapcsolása.")
+            use_rag = False
+    
     client = genai.Client(api_key=api_key)
-    chat_loop(client, profile)
+    chat_loop(client, profile, use_rag=use_rag, vector_db=vector_db)
 
 
 if __name__ == "__main__":

@@ -87,17 +87,30 @@ Szerkesztési szabályok:
 - Nem lista típusú mező egyszer állítható be, ha még üres.
 - Nem lista mező, ha már be van állítva, nem módosítható újra.
 
-### 4. Chat mód
+### 4. RAG mód kiválasztása
+
+A program elindítása után lehetőséged van RAG (Retrieval-Augmented Generation) módot aktiválni.
+
+- **RAG nélküli mód** (alapértelmezett): a teljes profil kerül a rendszerpromptba
+- **RAG módjal**: a felhasználó kérdésével azonos relevanciájú profilmezők szűrésre kerülnek, így csak azok jelennek meg, amelyek a kérdéshez kapcsolódnak
+
+**RAG technikai részletei:**
+- HuggingFace embedding modell: `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
+- Reranker: `BAAI/bge-reranker-v2-m3` (CrossEncoder)
+- Vektor adatbázis: Chroma
+
+### 5. Chat mód
 
 A chat folyamatos, körkörös input-output módban fut:
 
 1. Beírod a kérdést.
 2. A program hozzáfűzi az előzményekhez.
-3. A teljes beszélgetést (`history`) elküldi kontextusként.
-4. A rendszerprompt a teljes kiválasztott profilból készül.
-5. A modell streamelve válaszol.
-6. A válasz bekerül az előzményekbe.
-7. Újra kérdez, amíg ki nem lépsz.
+3. Ha RAG módot választottál, a kérdésből szűrésre kerülnek a releváns profil mezők.
+4. A teljes beszélgetést (`history`) elküldi kontextusként.
+5. A rendszerprompt a (RAG szűréssel vagy szűrés nélkül) profilból készül.
+6. A modell streamelve válaszol.
+7. A válasz bekerül az előzményekbe.
+8. Újra kérdez, amíg ki nem lépsz.
 
 Kilépés parancsok:
 
@@ -106,8 +119,9 @@ Kilépés parancsok:
 
 ## Mi kerül a modellhez pontosan
 
-- `system_instruction`: a kiválasztott profil teljes tartalma.
-- `contents`: a teljes beszélgetési előzmény + az aktuális felhasználói üzenet.
+- **RAG nélkül**: `system_instruction` = teljes profil JSON
+- **RAG-gal**: `system_instruction` = csak a kérdéshez releváns profil mezők JSON-je
+- `contents`: a teljes beszélgetési előzmény + az aktuális felhasználói üzenet
 
 ## Ajánlott git kezelés
 
@@ -123,6 +137,9 @@ Set-Content -Path .env -Value 'GEMINI_API_KEY="IDE_A_SAJAT_KULCSOD"'
 python cli_chatbot.py
 ```
 
-## Kódgeneráció
+## AI-nyilatkozat
 
 A projekt elkészítése során kódgenerálásra a **GPT-5.3-Codex** modell került felhasználásra.
+## Licencia
+
+Ez a projekt az MIT licencia alatt van közzétéve. További részletekért lásd a `LICENSE` fájlt.
