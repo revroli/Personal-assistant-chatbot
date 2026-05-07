@@ -73,8 +73,8 @@ Induláskor a program felkínálja:
 
 Új profil létrehozás esetén:
 
-- az új profil automatikusan a `Template` mély másolata lesz
-- azonnal mentésre kerül `user_profiles.json` fájlba
+- az új profil automatikusan a `Template` másolataként jön létre
+- azonnal mentésre kerül a `user_profiles.json` fájlba
 
 ### 3. Profil szerkesztés indítás előtt
 
@@ -123,11 +123,6 @@ Kilépés parancsok:
 - **RAG-gal**: `system_instruction` = csak a kérdéshez releváns profil mezők JSON-je
 - `contents`: a teljes beszélgetési előzmény + az aktuális felhasználói üzenet
 
-## Ajánlott git kezelés
-
-- `template_profiles.json` maradjon verziókövetett (Bill + Template).
-- `user_profiles.json` legyen ignorálva (helyi, személyes profiladatok).
-
 ## Gyors indítás
 
 ```powershell
@@ -137,9 +132,6 @@ Set-Content -Path .env -Value 'GEMINI_API_KEY="IDE_A_SAJAT_KULCSOD"'
 python cli_chatbot.py
 ```
 
-## AI-nyilatkozat
-
-A projekt elkészítése során kódgenerálásra a **GPT-5.3-Codex** modell került felhasználásra.
 ## Licencia
 
 Ez a projekt az MIT licencia alatt van közzétéve. További részletekért lásd a `LICENSE` fájlt.
